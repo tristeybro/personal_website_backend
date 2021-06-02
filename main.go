@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/smtp"
-	"personal_website_backend/credentials"
+	"os"
+
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type ContactEmailResponse struct {
@@ -15,21 +17,32 @@ type ContactEmailResponse struct {
 
 func sendEmail(w http.ResponseWriter, r *http.Request) {
 	// Get our email parameters.
-	r.ParseForm()
-	sender := r.Form["sender"][0]
-	subject := r.Form["subject"][0]
-	message := r.Form["message"][0]
+	r.ParseMultipartForm(32 << 20)
+	sender := r.FormValue("sender")
+	subject := r.FormValue("subject")
+	message := r.FormValue("message")
+
+	// Construct our email
+	fmt.Println(r.FormValue("sender"))
+	from := mail.NewEmail("Example User", "tristers.b@gmail.com")
+	body := "Received a message from: " + sender + ".\n" + message
+	htmlContent := "<strong>and easy to do anywhere</strong>"
+	to := mail.NewEmail("Tristan Benavides", "tristers.b@gmail.com")
+	email := mail.NewSingleEmail(from, subject, to, body, htmlContent)
+
 	// Send out our email.
-	myEmailAddress := credentials.Credentials.Email
-	password := credentials.Credentials.Password
-	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\n\nSent by %s\n\n%s", sender, myEmailAddress, subject, sender, message)
-	auth := smtp.PlainAuth("", myEmailAddress, password, "smtp.gmail.com")
-	err := smtp.SendMail("smtp.gmail.com:587", auth, myEmailAddress, []string{myEmailAddress}, []byte(msg))
+	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	response, err := client.Send(email)
 	contactEmailResponse := ContactEmailResponse{true}
 	if err != nil {
-		log.Printf("smtp error: %s", err)
+		log.Println(err)
 		contactEmailResponse = ContactEmailResponse{false}
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
 	}
+
 	// Send response to client.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -37,8 +50,8 @@ func sendEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", sendEmail)          // set router
-	err := http.ListenAndServe(":8000", nil) // set listen port
+	http.HandleFunc("/sendEmail", sendEmail)
+	err := http.ListenAndServe(":8000", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
