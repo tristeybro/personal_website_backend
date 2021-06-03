@@ -3,3 +3,4 @@ bin/*
 credentials.json
 sendgrid.env
 main
+vendor/*
