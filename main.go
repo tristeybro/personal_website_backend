@@ -45,6 +45,7 @@ func sendEmail(w http.ResponseWriter, r *http.Request) {
 
 	// Send response to client.
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(contactEmailResponse)
 }
