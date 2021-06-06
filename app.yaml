@@ -1,0 +1,11 @@
+
+runtime: go
+env: flex
+
+manual_scaling:
+    instances: 1
+resources:
+    cpu: 4
+    memory_gb: 8
+    disk_size_gb: 128
+

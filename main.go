@@ -49,9 +49,14 @@ func sendEmail(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(contactEmailResponse)
 }
 
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+}
+
 func main() {
 	http.HandleFunc("/sendEmail", sendEmail)
-	err := http.ListenAndServe(":8000", nil)
+	http.HandleFunc("/", helloWorld)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

@@ -7,4 +7,4 @@ COPY . .
 RUN source sendgrid.env
 RUN go build -o main
 
-CMD ["./personal_website_backend"]
+CMD ["./main"]
