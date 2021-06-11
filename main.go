@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -13,12 +14,34 @@ import (
 
 type ContactEmailResponse struct {
 	Success bool
+	Reason  string
+}
+
+var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+func isEmailValid(email string) bool {
+	if len(email) < 3 || len(email) > 254 {
+		return false
+	}
+	return emailRegex.MatchString(email)
 }
 
 func sendEmail(w http.ResponseWriter, r *http.Request) {
 	// Get our email parameters.
 	r.ParseMultipartForm(32 << 20)
 	sender := r.FormValue("sender")
+	if !isEmailValid(sender) {
+		contactEmailResponse := ContactEmailResponse{
+			false,
+			"The email is invalid.",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(contactEmailResponse)
+		return
+	}
+
 	subject := r.FormValue("subject")
 	message := r.FormValue("message")
 
@@ -33,10 +56,10 @@ func sendEmail(w http.ResponseWriter, r *http.Request) {
 	// Send out our email.
 	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
 	response, err := client.Send(email)
-	contactEmailResponse := ContactEmailResponse{true}
+	contactEmailResponse := ContactEmailResponse{true, ""}
 	if err != nil {
 		log.Println(err)
-		contactEmailResponse = ContactEmailResponse{false}
+		contactEmailResponse = ContactEmailResponse{false, err.Error()}
 	} else {
 		fmt.Println(response.StatusCode)
 		fmt.Println(response.Body)
