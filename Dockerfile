@@ -3,8 +3,7 @@ FROM golang:1.15-alpine
 ENV GO111MODULE=on
 WORKDIR /app
 COPY . .
-# TODO: Figure out a way to source credentials securely.
-RUN source sendgrid.env
+ENV SENDGRID_API_KEY=$SENDGRID_API_KEY
 RUN go build -o main
 
 CMD ["./main"]

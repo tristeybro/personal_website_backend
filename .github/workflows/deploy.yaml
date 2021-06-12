@@ -22,7 +22,7 @@ jobs:
     - name: Build and Publish Docker Image
       run: |
         gcloud config set project ${{ secrets.GCP_PROJECT }}
-        docker build -t gcr.io/tristan-benavides-website/backend-api:latest .
+        docker build -t gcr.io/tristan-benavides-website/backend-api:latest --build-arg SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} .
         docker image push gcr.io/tristan-benavides-website/backend-api
 
     - name: Deploy on Google App Engine
