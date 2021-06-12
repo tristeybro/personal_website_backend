@@ -1,0 +1,29 @@
+name: Deploy
+on:
+  push:
+    branches: [master]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    
+    - name: Setup GCloud CLI
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+        service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+        export_default_credentials: true
+      
+    - name: Configure Docker
+      run: gcloud auth configure-docker
+    
+    - name: Build and Publish Docker Image
+      run: |
+        gcloud config set project ${{ secrets.GCP_PROJECT }}
+        docker build -t gcr.io/tristan-benavides-website/backend-api:latest .
+        docker image push gcr.io/tristan-benavides-website/backend-api
+
+    - name: Deploy on Google App Engine
+      run: gcloud app deploy app.yaml --image-url=gcr.io/tristan-benavides-website/backend-api
