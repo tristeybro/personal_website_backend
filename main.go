@@ -74,7 +74,7 @@ func sendEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func helloWorld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+	fmt.Fprintf(w, "Hello again, %s!", r.URL.Path[1:])
 }
 
 func main() {
