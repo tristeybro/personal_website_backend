@@ -15,6 +15,9 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT }}
         service_account_key: ${{ secrets.GCP_CREDENTIALS }}
         export_default_credentials: true
+    
+    - name: Install Google Cloud SDK components
+      run: yes | gcloud components install beta app-engine-go
       
     - name: Configure Docker
       run: gcloud auth configure-docker
