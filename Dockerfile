@@ -1,5 +1,7 @@
 FROM golang:1.15-alpine
 
+ARG SENDGRID_API_KEY="not-a-real-api-key"
+
 ENV GO111MODULE=on
 WORKDIR /app
 COPY . .
