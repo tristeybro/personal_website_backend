@@ -14,5 +14,5 @@ then
   gcloud container clusters create $cluster_name --num-nodes=$num_nodes --zone=$cluster_zone
 else
   echo "cluster already exists, skipping creating cluster"
-  gcloud container clusters get-credentials $cluster_name
+  gcloud container clusters get-credentials $cluster_name --zone=$cluster_zone
 fi
