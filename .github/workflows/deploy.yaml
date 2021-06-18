@@ -28,5 +28,11 @@ jobs:
         docker build -t gcr.io/tristan-benavides-website/backend-api:latest --build-arg SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} .
         docker image push gcr.io/tristan-benavides-website/backend-api
 
-    - name: Deploy on Google App Engine
-      run: gcloud app deploy app.yaml --image-url=gcr.io/tristan-benavides-website/backend-api
+    - name: Create GKE Cluster
+      run: ./create_gke_cluster.sh -c tristan-benavides-backend-api-gke -n 1 --z us-central1
+    
+    - name: Deploy Kubernetes Deployment
+      run: kubectl apply -f deployment.yaml
+    
+    - name: Deploy Kubernetes Load Balancer Service
+      run: kubectl apply -f service.yaml

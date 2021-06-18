@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tristan-benavides-backend-api-gke
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tristan-benavides-backend-api-app
+  template:
+    metadata:
+      labels:
+        app: tristan-benavides-backend-api-app
+    spec:
+      containers:
+        - name: tristan-benavides-backend-api-container
+          image: gcr.io/tristan-benavides-website/backend-api:latest
+          ports:
+          - containerPort: 8080
+          env:
+          - name: PORT
+            value: "8080"
