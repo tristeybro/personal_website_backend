@@ -12,7 +12,7 @@ if [[ $response = "ClusterNotFound" ]]
 then
   echo "cluster not found, creating cluster"
   gcloud container clusters create $cluster_name --num-nodes=$num_nodes --zone=$cluster_zone
-  gcloud container clusters get-credentials $cluster_name
 else
   echo "cluster already exists, skipping creating cluster"
+  gcloud container clusters get-credentials $cluster_name
 fi
